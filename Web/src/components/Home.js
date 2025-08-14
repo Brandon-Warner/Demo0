@@ -4,46 +4,36 @@ import { Transition, Disclosure, Menu } from "@headlessui/react";
 import { BellIcon } from "@heroicons/react/outline";
 import jwt_decode from "jwt-decode";
 import googleOneTap from "google-one-tap";
-import { useVisitorData } from '@fingerprintjs/fingerprintjs-pro-react';
-import { useOrgId } from '../context/OrgContextProvider'; // Adjust path
+import { useVisitorData } from "@fingerprintjs/fingerprintjs-pro-react";
+import { useOrgId } from "../context/OrgContextProvider"; // Adjust path
 import { useNavigate } from "react-router-dom";
 
-
 export default function Home() {
-  const {
-    user,
-    loginWithRedirect,
-    getAccessTokenSilently,
-    logout,
-    isLoading,
-    isAuthenticated,
-  } = useAuth0();
+  const { user, loginWithRedirect, getAccessTokenSilently, logout, isLoading, isAuthenticated } =
+    useAuth0();
 
   const navigate = useNavigate();
 
   const orgId = useOrgId(); // Get the managed organization ID
 
-  const [ idClaims, setIdClaims ] = useState();
-  const [ accessToken, setAccessToken ] = useState();
-  const [ errorDescription, setErrorDescription ] = useState();
-  const [ companyId, setCompanyId ] = useState(null);
+  const [idClaims, setIdClaims] = useState();
+  const [accessToken, setAccessToken] = useState();
+  const [errorDescription, setErrorDescription] = useState();
+  const [companyId, setCompanyId] = useState(null);
 
-  const { data } = useVisitorData(
-    { extendedResult: true },
-    { immediate: true }
-  );
+  const { data } = useVisitorData({ extendedResult: true }, { immediate: true });
 
   const getClaims = useCallback(async () => {
     // const data = await getIdTokenClaims();
     // setIdClaims(data);
     // await new Promise((resolve) => setTimeout(resolve, 100));
     const auth0AccessTokenValues = localStorage.getItem(
-      "@@auth0spajs@@::jy9k2snrECCsGY6iDyTAOUFH9UEApycT::https://edge.samyap.dev/api::openid profile email offline_access",
+      "@@auth0spajs@@::vsPhczblTzhuI2QBL4B4hLKXAxGbHusE::https://www.nodnarb.com/api::openid profile email offline_access"
     );
     const auth0IdTokenValues = localStorage.getItem(
-      "@@auth0spajs@@::jy9k2snrECCsGY6iDyTAOUFH9UEApycT::@@user@@",
+      "@@auth0spajs@@::vsPhczblTzhuI2QBL4B4hLKXAxGbHusE::@@user@@"
     );
-    
+
     let rawAccessToken = JSON.parse(auth0AccessTokenValues)?.body?.access_token;
     let IdClaims = JSON.parse(auth0IdTokenValues)?.decodedToken?.claims;
     setIdClaims(IdClaims);
@@ -56,7 +46,7 @@ export default function Home() {
       getClaims();
     } else if (params.get("code")) {
       // IDP-init flow
-      console.log('idp-init flow starting');
+      console.log("idp-init flow starting");
       setLoginData("idp-init");
       getAccessTokenSilently();
     }
@@ -69,45 +59,38 @@ export default function Home() {
       setErrorDescription(error);
     } else {
       const companyIds = {
-        "lululemon": "org_RUz5Akf1AnP7YnqQ",
-        "southwest": "org_9rXgKnxL3dMy2Tpa",
-        "wholefoods": "org_TYC0okL11U149FP4",
-        "afcu": "org_W6PaFrPeY4kMxF90"
+        nike: "org_w326rQ204drHHggt",
+        delta: "org_z70rWFhSMYBoalN4",
+        wholefoods: "org_AZjhZtd9BvkKSp3O",
       };
-      
+
       let org = params.get("company");
       setCompanyId(companyIds[org] || undefined);
     }
   }, [params]);
 
   const goToAWS = () => {
-    window.open(
-      "https://auth.samyap.dev/samlp/9l7gswp9KpFoj0k7v1cRQUsoMlKLMyZE",
-      "_blank",
-    );
+    window.open("https://auth.samyap.dev/samlp/9l7gswp9KpFoj0k7v1cRQUsoMlKLMyZE", "_blank");
   };
 
   const goToOktaReact = () => {
     window.open(
       "https://auth.samyap.dev/samlp/UzuMwOYAuauzsOBMOPY2esnrN9978oxE?RelayState=https://blueocean.samyap.dev/sso/callback",
-      "_blank",
+      "_blank"
     );
   };
 
   const goToXAppSSO = () => {
-    window.open(
-      "https://app1.samyap.dev",
-      "_blank",
-    );
+    window.open("https://app1.samyap.dev", "_blank");
   };
 
   const clearAllSessions = async () => {
-    const response = await fetch('https://edge.samyap.dev/api/clear-all-sessions', {
-      method: 'POST',
+    const response = await fetch("https://edge.samyap.dev/api/clear-all-sessions", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userId: errorDescription.split(':')[1] }),
+      body: JSON.stringify({ userId: errorDescription.split(":")[1] }),
     });
 
     const responseData = await response.json();
@@ -117,7 +100,7 @@ export default function Home() {
     if (responseData.message) {
       navigate("/sso");
     }
-  }
+  };
 
   const classNames = (...classes) => {
     return classes.filter(Boolean).join(" ");
@@ -131,48 +114,48 @@ export default function Home() {
   ];
 
   const generateNonce = () => {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let nonce = '';
-  
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let nonce = "";
+
     for (let i = 0; i < 16; i++) {
       const randomIndex = Math.floor(Math.random() * characters.length);
       nonce += characters.charAt(randomIndex);
     }
-  
+
     return nonce;
-  }
+  };
 
   const [loginData, setLoginData] = useState();
 
   // Google One Tap Code
-  useEffect(() => {
-    const options = {
-      client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID, // required
-      auto_select: false, // optional
-      cancel_on_tap_outside: false, // optional
-      context: "signin", // optional
-      use_fedcm_for_prompt: true,
-      nonce: generateNonce()
-    };
+  // useEffect(() => {
+  //   const options = {
+  //     client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID, // required
+  //     auto_select: false, // optional
+  //     cancel_on_tap_outside: false, // optional
+  //     context: "signin", // optional
+  //     use_fedcm_for_prompt: true,
+  //     nonce: generateNonce()
+  //   };
 
-    if (!loginData && !isAuthenticated && !errorDescription && !isLoading && !companyId) {
-      googleOneTap(options, async (response) => {
-        setLoginData(response);
-        console.log('google id token', response.credential);
-        let jwt = jwt_decode(response.credential);
-        try {
-          const options = {
-            redirect_uri: window.location.origin,
-            login_hint: jwt.email,
-            connection: "google-oauth2"
-          };
-          loginWithRedirect({authorizationParams: options});
-        } catch (err) {
-          console.err("Login failed", err);
-        }
-      });
-    }
-  }, [loginData, errorDescription, isLoading, isAuthenticated]);
+  //   if (!loginData && !isAuthenticated && !errorDescription && !isLoading && !companyId) {
+  //     googleOneTap(options, async (response) => {
+  //       setLoginData(response);
+  //       console.log('google id token', response.credential);
+  //       let jwt = jwt_decode(response.credential);
+  //       try {
+  //         const options = {
+  //           redirect_uri: window.location.origin,
+  //           login_hint: jwt.email,
+  //           connection: "google-oauth2"
+  //         };
+  //         loginWithRedirect({authorizationParams: options});
+  //       } catch (err) {
+  //         console.err("Login failed", err);
+  //       }
+  //     });
+  //   }
+  // }, [loginData, errorDescription, isLoading, isAuthenticated]);
 
   const logoutGlobally = () => {
     setLoginData(null);
@@ -180,11 +163,18 @@ export default function Home() {
   };
 
   const loginButtons = [
-    { text: "Login", params: companyId ? { organization: companyId, visitorId: data?.visitorId } : { visitorId: data?.visitorId } },
-    { text: "Login w SSO", params: { connection: "Lululemon" } },
-    { text: "Login w Lululemon Org", params: { organization: "org_RUz5Akf1AnP7YnqQ" } },
+    {
+      text: "Login",
+      params: companyId
+        ? { organization: companyId, visitorId: data?.visitorId }
+        : { visitorId: data?.visitorId },
+    },
+    { text: "Login w SSO", params: { connection: "nike" } },
+    { text: "Login w Nike Org", params: { organization: "org_w326rQ204drHHggt" } },
+    { text: "Login w Delta Org", params: { organization: "org_z70rWFhSMYBoalN4" } },
+    { text: "Login w WholeFoods Org", params: { organization: "org_AZjhZtd9BvkKSp3O" } },
     { text: "Login w SMS OTP", params: { connection: "sms" } },
-    { text: "Login w Email OTP", params: { connection: "email"} },
+    { text: "Login w Email OTP", params: { connection: "email" } },
     { text: "Login w Passkey", params: { "ext-alt-brand": "passkey_only" } },
     { text: "Login w Alt Brand", params: { "ext-alt-brand": "portal_1" } },
     { text: "Login w Custom DB", params: { connection: "custom-db" } },
@@ -197,7 +187,7 @@ export default function Home() {
         scope: "ab-experiment-1",
       },
     },
-    { text: "Login w Toggle", params: { "ext-alt-brand": "custom_toggle" } }
+    { text: "Login w Toggle", params: { "ext-alt-brand": "custom_toggle" } },
     // {
     //   text: "Signup - Post Eligibility",
     //   params: {
@@ -234,7 +224,7 @@ export default function Home() {
                             item.current
                               ? "bg-gray-900 text-white"
                               : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                            "rounded-md px-3 py-2 text-sm font-medium",
+                            "rounded-md px-3 py-2 text-sm font-medium"
                           )}
                           aria-current={item.current ? "page" : undefined}
                         >
@@ -282,7 +272,7 @@ export default function Home() {
                               href="#"
                               className={classNames(
                                 active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm text-gray-700",
+                                "block px-4 py-2 text-sm text-gray-700"
                               )}
                             >
                               Your Profile
@@ -295,7 +285,7 @@ export default function Home() {
                               href="#"
                               className={classNames(
                                 active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm text-gray-700",
+                                "block px-4 py-2 text-sm text-gray-700"
                               )}
                             >
                               Settings
@@ -308,7 +298,7 @@ export default function Home() {
                               href="#"
                               className={classNames(
                                 active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm text-gray-700",
+                                "block px-4 py-2 text-sm text-gray-700"
                               )}
                             >
                               Sign out
@@ -333,7 +323,7 @@ export default function Home() {
                       item.current
                         ? "bg-gray-900 text-white"
                         : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                      "block rounded-md px-3 py-2 text-base font-medium",
+                      "block rounded-md px-3 py-2 text-base font-medium"
                     )}
                     aria-current={item.current ? "page" : undefined}
                   >
@@ -357,7 +347,7 @@ export default function Home() {
           <>
             <p>{errorDescription}</p>
             <button
-              onClick={() => loginWithRedirect({authorizationParams: { prompt: "login" }})}
+              onClick={() => loginWithRedirect({ authorizationParams: { prompt: "login" } })}
               style={{ display: "inline-block", marginLeft: "10px" }}
               class="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 sm:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
@@ -374,10 +364,7 @@ export default function Home() {
         )}
         {user && (
           <div style={{ margin: "auto" }}>
-            <div
-              class="relative shadow-md sm:rounded-lg"
-              style={{ display: "inline-block" }}
-            >
+            <div class="relative shadow-md sm:rounded-lg" style={{ display: "inline-block" }}>
               <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
@@ -387,11 +374,11 @@ export default function Home() {
                     <th scope="col" class="px-6 py-3">
                       Email
                     </th>
-                    {orgId && 
+                    {orgId && (
                       <th scope="col" class="px-6 py-3">
                         Org
                       </th>
-                    }
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -405,11 +392,11 @@ export default function Home() {
                     <td class="whitespace-nowrap px-6 py-4 font-medium dark:text-white">
                       {user.email}
                     </td>
-                    {orgId && 
+                    {orgId && (
                       <td class="whitespace-nowrap px-6 py-4 font-medium dark:text-white">
                         {orgId}
                       </td>
-                    }
+                    )}
                   </tr>
                 </tbody>
               </table>
@@ -444,9 +431,8 @@ export default function Home() {
                 onClick={() =>
                   loginWithRedirect({
                     authorizationParams: {
-                      acr_values:
-                      "http://schemas.openid.net/pape/policies/2007/06/multi-factor",
-                    }
+                      acr_values: "http://schemas.openid.net/pape/policies/2007/06/multi-factor",
+                    },
                   })
                 }
                 style={{ display: "inline-block", marginLeft: "10px" }}
@@ -456,7 +442,9 @@ export default function Home() {
               </button>
               <button
                 onClick={() =>
-                  loginWithRedirect({authorizationParams: { organization: "org_3vMJmTZoFIpZ1tp5" }})
+                  loginWithRedirect({
+                    authorizationParams: { organization: "org_3vMJmTZoFIpZ1tp5" },
+                  })
                 }
                 style={{ display: "inline-block", marginLeft: "10px" }}
                 class="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 sm:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
@@ -503,10 +491,10 @@ export default function Home() {
   );
 }
 
-
 const LoginDropdown = ({ loginButtons, loginWithRedirect }) => {
-  const [selectedOption, setSelectedOption] = useState('');
-  const selectedButton = loginButtons.find(button => button.text === selectedOption) ?? loginButtons[0];
+  const [selectedOption, setSelectedOption] = useState("");
+  const selectedButton =
+    loginButtons.find((button) => button.text === selectedOption) ?? loginButtons[0];
 
   const handleChange = (event) => {
     const selectedValue = event.target.value;
@@ -515,21 +503,23 @@ const LoginDropdown = ({ loginButtons, loginWithRedirect }) => {
 
   return (
     <>
-    <select
-      value={selectedOption}
-      onChange={handleChange}
-      style={{ display: "inline-block"}}
-      className="bg-gray-300 border border-white-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  max-w-sm mx-auto"
-    >
-      <option value="" disabled>Select a login option</option>
-      {loginButtons.map((button) => (
-        <option key={button.text} value={button.text}>
-          {button.text}
+      <select
+        value={selectedOption}
+        onChange={handleChange}
+        style={{ display: "inline-block" }}
+        className="bg-gray-300 border border-white-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  max-w-sm mx-auto"
+      >
+        <option value="" disabled>
+          Select a login option
         </option>
-      ))}
-    </select>
+        {loginButtons.map((button) => (
+          <option key={button.text} value={button.text}>
+            {button.text}
+          </option>
+        ))}
+      </select>
       <button
-        onClick={() => loginWithRedirect({authorizationParams: selectedButton.params})}
+        onClick={() => loginWithRedirect({ authorizationParams: selectedButton.params })}
         style={{ display: "inline-block", marginLeft: "10px" }}
         class="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 sm:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
